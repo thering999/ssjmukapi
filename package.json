@@ -1,0 +1,11 @@
+{
+    "name": "ssjmukapi",
+    "version": "1.0.0",
+    "description": "SSJ Mukdahan API",
+    "scripts": {
+        "docs:generate": "redoc-cli bundle docs/openapi.yaml -o public/docs/index.html"
+    },
+    "devDependencies": {
+        "redoc-cli": "^0.13.20"
+    }
+}
