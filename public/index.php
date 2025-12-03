@@ -1,8 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// Path Helper
+$rootPath = __DIR__ . '/..';
+if (!file_exists($rootPath . '/routes/api.php') && file_exists(__DIR__ . '/routes/api.php')) {
+    $rootPath = __DIR__;
+}
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+require_once $rootPath . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable($rootPath);
 $dotenv->load();
 
 // CORS Headers
@@ -18,6 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 $router = new \Bramus\Router\Router();
 
 // Load Routes
-require_once __DIR__ . '/../routes/api.php';
+require_once $rootPath . '/routes/api.php';
 
 $router->run();
