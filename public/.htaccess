@@ -1,0 +1,17 @@
+# Redirect all requests to index.php (Apache)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Pass Authorization header to PHP
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Allow actual files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Exclude test pages and documentation directory from being rewritten to index.php
+RewriteCond %{REQUEST_URI} !^/test.*\.php$
+RewriteCond %{REQUEST_URI} !^/docs(/|$)
+RewriteRule ^ index.php [L]
+</IfModule>

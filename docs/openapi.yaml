@@ -1,0 +1,571 @@
+openapi: 3.0.3
+info:
+  title: ssjmukapi
+  version: "1.0.0"
+  description: Public Open Data API for Provincial Health Office
+servers:
+  - url: http://localhost:8081/api/v1
+security:
+  - BearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+  /facilities:
+    get:
+      summary: List facilities
+      security: []
+      parameters:
+        - in: query
+          name: province_code
+          schema: { type: string, example: '34' }
+        - in: query
+          name: district_code
+          schema: { type: string, example: '3401' }
+        - in: query
+          name: type
+          schema: { type: string, enum: [HOSPITAL, CLINIC, PHC, OTHER] }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: A paginated list of facilities
+    post:
+      summary: Create a new facility (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, name_th, type, province_code, district_code]
+              properties:
+                code: { type: string }
+                name_th: { type: string }
+                type: { type: string, enum: [HOSPITAL, CLINIC, PHC, OTHER] }
+                province_code: { type: string }
+                district_code: { type: string }
+                lat: { type: number }
+                lng: { type: number }
+                phone: { type: string }
+      responses:
+        '201':
+          description: Facility created
+        '401':
+          description: Unauthorized
+  /facilities/{id}:
+    get:
+      summary: Get a facility by ID
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Facility detail
+        '404':
+          description: Not found
+    put:
+      summary: Update a facility (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code: { type: string }
+                name_th: { type: string }
+                type: { type: string, enum: [HOSPITAL, CLINIC, PHC, OTHER] }
+                province_code: { type: string }
+                district_code: { type: string }
+                lat: { type: number }
+                lng: { type: number }
+                phone: { type: string }
+      responses:
+        '200':
+          description: Facility updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+    delete:
+      summary: Delete a facility (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Facility deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+  /announcements:
+    get:
+      summary: List announcements
+      security: []
+      parameters:
+        - in: query
+          name: published
+          schema: { type: integer, enum: [0, 1] }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: A paginated list of announcements
+    post:
+      summary: Create a new announcement (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                title: { type: string }
+                body: { type: string }
+                published: { type: integer, enum: [0, 1] }
+                published_at: { type: string, format: date-time }
+      responses:
+        '201':
+          description: Announcement created
+        '401':
+          description: Unauthorized
+  /announcements/{id}:
+    get:
+      summary: Get an announcement by ID
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Announcement detail
+        '404':
+          description: Not found
+    put:
+      summary: Update an announcement (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                body: { type: string }
+                published: { type: integer, enum: [0, 1] }
+                published_at: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Announcement updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+    delete:
+      summary: Delete an announcement (Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Announcement deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+  /contacts:
+    get:
+      summary: List contacts
+      security: []
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: A paginated list of contacts
+  /cases:
+    get:
+      summary: List disease cases (summary)
+      security: []
+      parameters:
+        - in: query
+          name: date_from
+          schema: { type: string, format: date, example: '2025-01-01' }
+        - in: query
+          name: date_to
+          schema: { type: string, format: date, example: '2025-01-31' }
+        - in: query
+          name: icd10
+          schema: { type: string, example: 'J10' }
+        - in: query
+          name: province_code
+          schema: { type: string, example: '34' }
+        - in: query
+          name: district_code
+          schema: { type: string, example: '3401' }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: A paginated list of disease case records
+  /vaccinations:
+    get:
+      summary: List vaccination records (summary)
+      security: []
+      parameters:
+        - in: query
+          name: date_from
+          schema: { type: string, format: date, example: '2025-01-01' }
+        - in: query
+          name: date_to
+          schema: { type: string, format: date, example: '2025-01-31' }
+        - in: query
+          name: vaccine_code
+          schema: { type: string, example: 'COVID19' }
+        - in: query
+          name: province_code
+          schema: { type: string, example: '34' }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: A paginated list of vaccination records
+  /opendata/ipd10-sex-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch top 10 IPD disease groups by sex from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/opd10-sex-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch top 10 OPD disease groups by sex from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/opd-all-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch OPD all rights summary (visits per person per year, monthly) from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/school-summary-by-type:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch school summary by school/type/affiliation from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/school-student-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch school student summary by class and sex from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/health-coverage-card-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch health coverage card summary from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/volunteer-health-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch volunteer health summary from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/provider-summary-by-type:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch provider summary by PROVIDERTYPE from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/hospital-serviceplan-summary:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch hospital summary by Service Plan level from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/hospital-summary-by-level:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch hospital summary by level from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/pcc1-by-service:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch basic and summary service data by service unit from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/person-type-by-service:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch population by service unit and TYPEAREA from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/population-sex-age-direct:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy GET to https://opendata.moph.go.th/api/report_data/s_pop_sex_age/
+      security: []
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/population-sex-age-moph-direct:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy GET to https://opendata.moph.go.th/api/report_data/s_pop_sex_age_moph/
+      security: []
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/labor-sex-age:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch labor population by sex and age from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/population-sex-age-moph:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch population by sex and age (ทะเบียนราษฎร์) from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+  /opendata/population-sex-age:
+    get:
+      tags:
+        - Opendata
+      summary: Proxy to fetch population by sex and age from MOPH Open Data API
+      security: []
+      parameters:
+        - in: query
+          name: year
+          schema: { type: integer, example: 2567 }
+        - in: query
+          name: province
+          schema: { type: string, example: '34' }
+      responses:
+        '200':
+          description: Data from MOPH Open Data API
+
+
+
+tags:
+  - name: Opendata
+    description: MOPH Open Data API proxies
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API_KEY
+  description: Use "Bearer ssjmuk_2025" for development
+  schemas: {}
