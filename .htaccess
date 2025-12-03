@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Protect sensitive files
+RewriteRule ^(\.env|\.git|composer\.json|composer\.lock|README\.md) - [F,L]
+RewriteRule ^(app|routes|storage|vendor)/ - [F,L]
+
+# Route everything to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
