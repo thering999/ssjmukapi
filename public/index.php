@@ -1,9 +1,32 @@
 <?php
 
 // Path Helper
-$rootPath = __DIR__ . '/..';
-if (!file_exists($rootPath . '/routes/api.php') && file_exists(__DIR__ . '/routes/api.php')) {
-    $rootPath = __DIR__;
+$possibleRoots = [
+    __DIR__ . '/..', // Standard: public/index.php -> project root
+    __DIR__,         // Flat: index.php at project root
+    $_SERVER['DOCUMENT_ROOT'] . '/..',
+    $_SERVER['DOCUMENT_ROOT']
+];
+
+$rootPath = null;
+foreach ($possibleRoots as $path) {
+    if (file_exists($path . '/routes/api.php')) {
+        $rootPath = $path;
+        break;
+    }
+}
+
+if ($rootPath === null) {
+    header('Content-Type: text/plain');
+    echo "CRITICAL ERROR: Cannot find project root.\n";
+    echo "Current Directory: " . __DIR__ . "\n";
+    echo "Searched for routes/api.php in:\n";
+    foreach ($possibleRoots as $path) {
+        echo "- " . realpath($path) . " (" . $path . ")\n";
+    }
+    echo "\nDirectory Contents of " . __DIR__ . ":\n";
+    print_r(scandir(__DIR__));
+    exit(1);
 }
 
 require_once $rootPath . '/vendor/autoload.php';
